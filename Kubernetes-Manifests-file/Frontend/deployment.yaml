@@ -29,6 +29,6 @@ spec:
         imagePullPolicy: Always
         env:
           - name: REACT_APP_BACKEND_URL
-            value: "https://<your-ngrok-id>.ngrok-free.app/api/tasks"  # ✅ <-- Replace this!
+            value: "https://1128-3-211-98-152.ngrok-free.app/api/tasks"  # ✅ <-- Replace this!
         ports:
         - containerPort: 3000
