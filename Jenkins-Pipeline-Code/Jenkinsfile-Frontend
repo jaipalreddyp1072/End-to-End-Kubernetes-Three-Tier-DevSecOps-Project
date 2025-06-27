@@ -23,16 +23,21 @@ pipeline {
             }
         }
         stage('Sonarqube Analysis') {
-            steps {
-                dir('Application-Code/frontend') {
-                    withSonarQubeEnv('sonar-server') {
-                        sh ''' $SCANNER_HOME/bin/sonar-scanner \
-                        -Dsonar.projectName=three-tier-frontend \
-                        -Dsonar.projectKey=three-tier-frontend '''
-                    }
-                }
+    steps {
+        dir('Application-Code/frontend') {
+            withSonarQubeEnv('sonar-server') {
+                sh '''
+                $SCANNER_HOME/bin/sonar-scanner \
+                  -Dsonar.projectKey=three-tier-frontend \
+                  -Dsonar.projectName=three-tier-frontend \
+                  -Dsonar.sources=. \
+                  -Dsonar.host.url=http://3.211.98.152:9000 \
+                  -Dsonar.login=squ_89279ab75e943b45d5d7acbd8747ff6721cd5d2f
+                '''
             }
         }
+    }
+}
         stage('Quality Check') {
             steps {
                 script {
@@ -41,13 +46,20 @@ pipeline {
             }
         }
         stage('OWASP Dependency-Check Scan') {
-            steps {
-                dir('Application-Code/frontend') {
-                    dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
-                    dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-                }
-            }
+    steps {
+        dir('Application-Code/frontend') {
+            dependencyCheck additionalArguments: '''
+                --scan . \
+                --format ALL \
+                --disableYarnAudit \
+                --disableNodeAudit \
+                --enableExperimental
+            ''', odcInstallation: 'DP-Check'
+
+            dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
         }
+    }
+}
         stage('Trivy File Scan') {
             steps {
                 dir('Application-Code/frontend') {
